@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dB Meter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <h1>dB Meter</h1>
+
+    <div class="meter-section">
+      <div class="scale">
+        <span>0</span>
+        <span>-3</span>
+        <span>-6</span>
+        <span>-10</span>
+        <span>-20</span>
+        <span>-40</span>
+        <span>-60</span>
+      </div>
+      <div class="meter-track">
+        <div id="meter-bar"></div>
+      </div>
+    </div>
+
+    <div id="db-value">-- dB</div>
+
+    <div class="history-section">
+      <canvas id="history-canvas"></canvas>
+      <div class="history-label">30 s</div>
+    </div>
+
+    <button id="start-btn">Start</button>
+    <p id="error-msg" class="hidden"></p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

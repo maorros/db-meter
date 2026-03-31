@@ -1,0 +1,146 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+h1 {
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+/* Meter layout */
+.meter-section {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 300px;
+}
+
+/* Scale labels */
+.scale {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  font-size: 0.7rem;
+  color: #666;
+  padding-bottom: 2px;
+}
+
+/* Meter track — gradient is fixed on the background */
+.meter-track {
+  width: 48px;
+  background: linear-gradient(
+    to top,
+    #00c853 0%,
+    #00c853 50%,
+    #ffd600 70%,
+    #ff6d00 85%,
+    #d50000 100%
+  );
+  border-radius: 4px;
+  border: 1px solid #333;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dark mask from the top — shrinks as level rises, revealing gradient below */
+#meter-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: #2a2a2a;
+  transition: height 0.05s ease-out;
+}
+
+/* History chart */
+.history-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+#history-canvas {
+  display: block;
+  width: 320px;
+  height: 100px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.history-label {
+  font-size: 0.65rem;
+  color: #555;
+  letter-spacing: 0.1em;
+}
+
+/* Numeric readout */
+#db-value {
+  font-size: 2.4rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: #e0e0e0;
+  min-width: 140px;
+  text-align: center;
+}
+
+/* Start button */
+#start-btn {
+  padding: 10px 36px;
+  font-size: 1rem;
+  font-family: inherit;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: transparent;
+  color: #00c853;
+  border: 1px solid #00c853;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+#start-btn:hover {
+  background: #00c853;
+  color: #1a1a1a;
+}
+
+#start-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Error message */
+#error-msg {
+  color: #d50000;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 260px;
+}
+
+.hidden {
+  display: none;
+}
