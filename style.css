@@ -108,27 +108,43 @@ h1 {
   text-align: center;
 }
 
-/* Start button */
-#start-btn {
-  padding: 10px 36px;
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-row button {
+  padding: 10px 28px;
   font-size: 1rem;
   font-family: inherit;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   background: transparent;
-  color: #00c853;
-  border: 1px solid #00c853;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
-#start-btn:hover {
+#start-btn, #restart-btn {
+  color: #00c853;
+  border: 1px solid #00c853;
+}
+#start-btn:hover, #restart-btn:hover {
   background: #00c853;
   color: #1a1a1a;
 }
 
-#start-btn:disabled {
+#stop-btn {
+  color: #d50000;
+  border: 1px solid #d50000;
+}
+#stop-btn:hover {
+  background: #d50000;
+  color: #fff;
+}
+
+.btn-row button:disabled {
   opacity: 0.3;
   cursor: default;
 }

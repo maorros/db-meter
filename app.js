@@ -1,7 +1,9 @@
-const startBtn = document.getElementById('start-btn');
-const meterBar = document.getElementById('meter-bar');
-const dbValue = document.getElementById('db-value');
-const errorMsg = document.getElementById('error-msg');
+const startBtn   = document.getElementById('start-btn');
+const stopBtn    = document.getElementById('stop-btn');
+const restartBtn = document.getElementById('restart-btn');
+const meterBar   = document.getElementById('meter-bar');
+const dbValue    = document.getElementById('db-value');
+const errorMsg   = document.getElementById('error-msg');
 const historyCanvas = document.getElementById('history-canvas');
 const histCtx = historyCanvas.getContext('2d');
 
@@ -40,6 +42,9 @@ historyCanvas.height = 100;
 
 const history = [];
 let lastSampleTime = 0;
+let animFrameId = null;
+let currentStream = null;
+let currentAudioCtx = null;
 
 function drawHistory() {
   const W = historyCanvas.width;
@@ -115,34 +120,54 @@ function drawHistory() {
   histCtx.fillText(maxDb.toFixed(1), W - 2, maxY + (maxY < 12 ? 2 : -2));
 }
 
-startBtn.addEventListener('click', async () => {
-  startBtn.disabled = true;
+function setRunning(running) {
+  startBtn.classList.toggle('hidden', running);
+  stopBtn.classList.toggle('hidden', !running);
+  restartBtn.classList.toggle('hidden', true);
+}
+
+function setIdle() {
+  startBtn.classList.remove('hidden');
+  stopBtn.classList.add('hidden');
+  restartBtn.classList.add('hidden');
+}
+
+function setStopped() {
+  startBtn.classList.add('hidden');
+  stopBtn.classList.add('hidden');
+  restartBtn.classList.remove('hidden');
+}
+
+function stopMeter() {
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  if (currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
+  if (currentAudioCtx) { currentAudioCtx.close(); currentAudioCtx = null; }
+  meterBar.style.height = '100%';
+}
+
+async function startMeter() {
   errorMsg.classList.add('hidden');
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    const audioCtx = new AudioContext();
-    const source = audioCtx.createMediaStreamSource(stream);
-    const analyser = audioCtx.createAnalyser();
+    currentStream = stream;
+    currentAudioCtx = new AudioContext();
+    const source = currentAudioCtx.createMediaStreamSource(stream);
+    const analyser = currentAudioCtx.createAnalyser();
     analyser.fftSize = 2048;
     source.connect(analyser);
 
     const buffer = new Float32Array(analyser.fftSize);
+    setRunning(true);
 
     function update() {
       analyser.getFloatTimeDomainData(buffer);
 
-      // RMS of samples
       let sumSq = 0;
-      for (let i = 0; i < buffer.length; i++) {
-        sumSq += buffer[i] * buffer[i];
-      }
+      for (let i = 0; i < buffer.length; i++) sumSq += buffer[i] * buffer[i];
       const rms = Math.sqrt(sumSq / buffer.length);
-
-      // Convert to dBFS
       const db = rms > 0 ? 20 * Math.log10(rms) : -Infinity;
 
-      // Update meter display
       if (isFinite(db)) {
         const pct = dbToPos(db) * 100;
         meterBar.style.height = (100 - pct) + '%';
@@ -152,7 +177,6 @@ startBtn.addEventListener('click', async () => {
         dbValue.textContent = DB_MIN + '.0 dB';
       }
 
-      // Sample into history at fixed interval
       const now = performance.now();
       if (now - lastSampleTime >= SAMPLE_INTERVAL_MS) {
         lastSampleTime = now;
@@ -161,15 +185,29 @@ startBtn.addEventListener('click', async () => {
         drawHistory();
       }
 
-      requestAnimationFrame(update);
+      animFrameId = requestAnimationFrame(update);
     }
 
     update();
   } catch (err) {
-    startBtn.disabled = false;
+    setIdle();
     errorMsg.textContent = err.name === 'NotAllowedError'
       ? 'Microphone access denied. Please allow mic access and try again.'
       : 'Could not access microphone: ' + err.message;
     errorMsg.classList.remove('hidden');
   }
+}
+
+startBtn.addEventListener('click', () => startMeter());
+
+stopBtn.addEventListener('click', () => {
+  stopMeter();
+  setStopped();
+});
+
+restartBtn.addEventListener('click', () => {
+  history.length = 0;
+  drawHistory();
+  dbValue.textContent = '-- dB';
+  startMeter();
 });
